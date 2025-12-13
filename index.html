@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fast and Slow – Sai Varshith</title>
+
+  <!-- PDF.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+      color: white;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    /* HEADER */
+    .header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .author {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    /* SMALL INSTALL BUTTON */
+    .install-btn {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 8px 18px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: white;
+      text-decoration: none;
+      opacity: 0.9;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .install-btn:hover {
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    /* PDF VIEWER */
+    #pdf-container {
+      margin-top: 14px;
+    }
+
+    #pdf-container canvas {
+      width: 100%;
+      height: auto;
+      margin-bottom: 18px;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- HEADER -->
+    <div class="header">
+      <h1>FAST AND SLOW</h1>
+      <div class="author">Sai Varshith</div>
+
+      <a
+        class="install-btn"
+        href="https://fastandslow.tiiny.site/book.pdf"
+        download
+      >
+        Install Book
+      </a>
+    </div>
+
+    <!-- PDF OUTPUT -->
+    <div id="pdf-container"></div>
+
+  </div>
+
+  <!-- PDF RENDER SCRIPT -->
+  <script>
+    const pdfUrl = "https://fastandslow.tiiny.site/book.pdf";
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    const container = document.getElementById("pdf-container");
+
+    pdfjsLib.getDocument(pdfUrl).promise
+      .then(pdf => {
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          pdf.getPage(pageNum).then(page => {
+            const scale = 1.4;
+            const viewport = page.getViewport({ scale });
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            container.appendChild(canvas);
+
+            page.render({
+              canvasContext: ctx,
+              viewport
+            });
+          });
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        container.innerHTML =
+          "<p style='text-align:center;opacity:0.7'>Unable to load book</p>";
+      });
+  </script>
+</body>
+</html>
